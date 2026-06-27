@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEET Master • Nuclei (50 Questions)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root { --primary: #1e3a5f; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family: system-ui, sans-serif; background: #f8fafc; color: #1e2937; line-height: 1.6; }
+        .header { background: var(--primary); color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 15px; }
+        .question { background: white; border-radius: 16px; padding: 28px; margin-bottom: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        .option { padding: 16px; margin: 10px 0; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer; transition: all 0.25s; font-size: 1.05rem; }
+        .option:hover { border-color: var(--primary); background: #f0f7ff; }
+        .option.selected { border-color: var(--primary); background: #e0f0ff; font-weight: 500; }
+        .palette-btn { width: 42px; height: 42px; margin: 5px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; border: 2px solid #cbd5e1; font-size: 0.95rem; }
+        .palette-btn.answered { background: #22c55e; color: white; border-color: #22c55e; }
+        .palette-btn.review { background: #f59e0b; color: white; border-color: #f59e0b; }
+        .btn { padding: 12px 24px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; margin: 5px; }
+        .btn-primary { background: var(--primary); color: white; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div><strong>NEET Master</strong> — Chapter 13: Nuclei (50 Questions)</div>
+        <div id="timer" style="font-family:monospace; font-size:1.4rem; font-weight:bold;">54:00</div>
+    </div>
+
+    <div class="container">
+        <!-- Landing -->
+        <div id="landing" style="text-align:center; padding:80px 20px;">
+            <h1 style="font-size:2.8rem; color:var(--primary);">Nuclear Physics</h1>
+            <p style="font-size:1.4rem; color:#64748b;">50 Advanced NEET/JEE Level Questions</p>
+            <button onclick="startExam()" class="btn btn-primary" style="font-size:1.4rem; padding:18px 60px; margin-top:30px;">
+                <i class="fas fa-play"></i> Start Full Exam
+            </button>
+        </div>
+
+        <!-- Exam -->
+        <div id="exam" style="display:none;">
+            <div style="display:flex; gap:25px;">
+                <div style="flex:1;">
+                    <div class="question">
+                        <div style="display:flex;justify-content:space-between;margin-bottom:20px;">
+                            <span id="q-no" style="background:var(--primary);color:white;padding:8px 18px;border-radius:8px;font-weight:700;"></span>
+                            <span id="q-topic" style="padding:8px 18px;background:#f1f5f9;border-radius:9999px;"></span>
+                        </div>
+                        <p id="question-text" style="font-size:1.22rem;line-height:1.75;margin-bottom:25px;"></p>
+                        <div id="options"></div>
+                    </div>
+
+                    <div style="padding:10px;display:flex;gap:12px;flex-wrap:wrap;">
+                        <button onclick="prevQuestion()" class="btn" style="background:#64748b;color:white;">← Previous</button>
+                        <button onclick="markForReview()" class="btn" style="background:#f59e0b;color:white;">Mark for Review</button>
+                        <button onclick="nextQuestion()" class="btn btn-primary">Save & Next →</button>
+                        <button onclick="submitExam()" class="btn" style="background:#ef4444;color:white;margin-left:auto;">Submit Exam</button>
+                    </div>
+                </div>
+
+                <!-- Palette -->
+                <div style="width:320px;background:white;border-radius:16px;padding:20px;height:fit-content;box-shadow:0 8px 25px rgba(0,0,0,0.1);">
+                    <h3 style="margin-bottom:15px;color:var(--primary);">Question Palette</h3>
+                    <div id="palette" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result -->
+        <div id="result" style="display:none;text-align:center;padding:40px;">
+            <div style="background:white;max-width:700px;margin:auto;border-radius:20px;padding:50px;box-shadow:0 10px 40px rgba(0,0,0,0.15);">
+                <h1 id="score-text" style="font-size:3.8rem;margin:20px 0;"></h1>
+                <p id="percent-text" style="font-size:2rem;color:#16a34a;"></p>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:30px;margin:40px 0;">
+                    <div><h2 id="correct-count" style="color:#22c55e;"></h2><p>Correct</p></div>
+                    <div><h2 id="wrong-count" style="color:#ef4444;"></h2><p>Wrong</p></div>
+                    <div><h2 id="skipped-count"></h2><p>Skipped</p></div>
+                </div>
+                <button onclick="location.reload()" class="btn btn-primary" style="padding:16px 50px;font-size:1.2rem;">New Test</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {id:1, q:"If the mass number of a nucleus A is 27 and its radius is R, what is the mass number of a nucleus with radius 4R?", options:["108","216","1728","432"], correct:2, topic:"Nuclear Size"},
+            {id:2, q:"The nuclear density of ₁₃²⁷Al is ρ. The nuclear density of ₂₆⁵⁶Fe is approximately:", options:["2ρ","0.5ρ","ρ","4ρ"], correct:2, topic:"Nuclear Density"},
+            {id:3, q:"Calculate the approximate ratio of the nuclear radii of gold (¹⁹⁷Au) and silver (¹⁰⁷Ag).", options:["1.23","1.84","1.42","1.55"], correct:0, topic:"Nuclear Size"},
+            {id:4, q:"A specific isotope of Gold (¹⁹⁷Au) has 32 known isotopes ranging from A=173 to A=204. Which property remains identical across all these isotopes?", options:["Nuclear radius","Binding energy per nucleon","Chemical behavior","Number of neutrons"], correct:2, topic:"Isotopes"},
+            {id:5, q:"The volume of a nucleus is proportional to:", options:["A¹/³","A²/³","A","A³"], correct:2, topic:"Nuclear Size"},
+            {id:6, q:"If the density of nuclear matter is 2.3×10¹⁷ kg/m³, and density of water is 10³ kg/m³, nuclear matter is how many times denser?", options:["10¹¹","2.3×10¹⁴","10¹⁷","2.3×10²⁰"], correct:1, topic:"Nuclear Density"},
+            {id:7, q:"A free neutron has a mean life of 1000s. If we have 10⁶ free neutrons, approximately how many will remain after 1000s?", options:["5×10⁵","3.7×10⁵","10⁵","Zero"], correct:1, topic:"Nuclear Composition"},
+            {id:8, q:"Which of the following pairs are isotones?", options:["³₁H and ³₂He","¹⁹⁸₈₀Hg and ¹⁹⁷₇₉Au","¹²₆C and ¹⁴₆C","²₁H and ³₁H"], correct:1, topic:"Nuclear Composition"},
+            {id:9, q:"Given R₀ = 1.2 fm, what is the diameter of a Carbon-12 nucleus?", options:["2.75 fm","5.50 fm","1.2 fm","3.6 fm"], correct:1, topic:"Nuclear Size"},
+            {id:10, q:"The fact that nuclear density is constant implies that:", options:["Protons and neutrons are packed loosely","Nuclear matter behaves like a drop of liquid of constant density","Larger nuclei have higher internal pressure","Gravity plays a role in nuclear binding"], correct:1, topic:"Nuclear Density"},
+
+            {id:11, q:"Calculate the energy released (in Joules) when 2 mg of matter is completely converted into energy.", options:["1.8×10¹¹ J","9×10¹³ J","1.8×10¹⁴ J","6×10¹⁰ J"], correct:0, topic:"Mass-Energy"},
+            {id:12, q:"The mass defect of ₈¹⁶O is 0.13691 u. Find its binding energy per nucleon.", options:["127.5 MeV","8.25 MeV","7.97 MeV","15.9 MeV"], correct:2, topic:"Binding Energy"},
+            {id:13, q:"Why is the binding energy per nucleon (E_bn) lower for very heavy nuclei (A > 170)?", options:["Nuclear forces become long-range","Coulomb repulsion between protons increases significantly","Neutrons start decaying inside the nucleus","The saturation property fails"], correct:1, topic:"Binding Energy"},
+            {id:14, q:"If the mass of a Nitrogen nucleus (₇¹⁴N) is 14.00307 u, m_p = 1.00783 u, and m_n = 1.00867 u, the mass defect is:", options:["0.11243 u","0.10843 u","0.09543 u","0.12430 u"], correct:0, topic:"Mass Defect"},
+            {id:15, q:"The 'saturation property' of nuclear forces is directly responsible for:", options:["The stability of isotopes","The constancy of E_bn in the range 30 < A < 170","The high temperature required for fusion","The emission of gamma rays"], correct:1, topic:"Nuclear Force"},
+            {id:16, q:"A nucleus with A = 240 and E_bn = 7.6 MeV splits into two fragments of A = 120 with E_bn = 8.5 MeV. The total energy released is:", options:["0.9 MeV","216 MeV","108 MeV","200 MeV"], correct:1, topic:"Fission"},
+            {id:17, q:"Which nuclide is at the peak of the binding energy curve with approximately 8.75 MeV per nucleon?", options:["⁴He","¹⁶O","⁵⁶Fe","²³⁸U"], correct:2, topic:"Binding Energy"},
+            {id:18, q:"Calculate the mass defect of a nucleus whose binding energy is 93.15 MeV.", options:["1 u","0.1 u","0.01 u","10 u"], correct:1, topic:"Mass Defect"},
+            {id:19, q:"In the expression for mass defect ΔM = [Z m_p + (A-Z)m_n] - M, the term M represents:", options:["The mass of the atom","The mass of the nucleus","The sum of masses of constituents","The average atomic mass"], correct:1, topic:"Mass Defect"},
+            {id:20, q:"If the binding energy of a nucleus is E_b, the mass of the nucleus is:", options:["Z m_p + (A-Z)m_n + E_b/c²","Z m_p + (A-Z)m_n - E_b/c²","E_b/c² - [Z m_p + (A-Z)m_n]","M = A × 1 u"], correct:1, topic:"Mass-Energy"},
+
+            {id:21, q:"At what distance r is the potential energy between two nucleons exactly zero?", options:["0.8 fm","Less than 0.8 fm","1.2 fm","Infinity"], correct:1, topic:"Nuclear Force"},
+            {id:22, q:"The nuclear force between proton-neutron, proton-proton, and neutron-neutron relates as:", options:["F_pp > F_pn > F_nn","F_pp ≈ F_pn ≈ F_nn","F_pn > F_pp > F_nn","F_nn > F_pn > F_pp"], correct:1, topic:"Nuclear Force"},
+            {id:23, q:"At a distance of 0.5 fm, the nuclear force is:", options:["Strongly attractive","Weakly attractive","Strongly repulsive","Zero"], correct:2, topic:"Nuclear Force"},
+            {id:24, q:"If the Coulomb barrier for two protons is 400 keV, what temperature is theoretically needed?", options:["1.5×10⁷ K","3×10⁹ K","10⁸ K","6000 K"], correct:1, topic:"Fusion"},
+            {id:25, q:"Why can we assume that nucleons inside a large nucleus only interact with their immediate neighbors?", options:["Because of the Coulomb barrier","Due to the short-range nature of the nuclear force","Because protons and neutrons are identical","Due to the Pauli exclusion principle"], correct:1, topic:"Nuclear Force"},
+
+            {id:26, q:"How much energy is released in the fission of 2 kg of Uranium-235? (200 MeV per fission)", options:["1.6×10¹⁴ J","8×10¹³ J","2.4×10¹⁴ J","10¹⁷ J"], correct:0, topic:"Fission"},
+            {id:27, q:"In the fusion reaction ²₁H + ²₁H → ³₁H + ¹₁H + Q (Q=4.03 MeV), total energy released by 1 mole of deuterium is:", options:["4.03×10²³ MeV","1.21×10²⁴ MeV","2.42×10²⁴ MeV","4.03 MeV"], correct:1, topic:"Fusion"},
+            {id:28, q:"In the solar proton-proton cycle, the net energy released when 4 protons form 1 Helium nucleus is:", options:["0.42 MeV","12.86 MeV","26.7 MeV","200 MeV"], correct:2, topic:"Fusion"},
+            {id:29, q:"Why is plasma confinement a major challenge in controlled fusion?", options:["Plasma is too heavy","No container can withstand 10⁸ K","Plasma is not magnetic","Fusion only happens in vacuum"], correct:1, topic:"Fusion"},
+            {id:30, q:"If Q-value of a reaction is positive, the reaction is:", options:["Endothermic","Exothermic","Impossible","In equilibrium"], correct:1, topic:"Nuclear Reactions"},
+
+            {id:31, q:"A 100W lamp is powered by fusion of 2 kg of Deuterium. How many reactions occur if energy per reaction is 3.27 MeV?", options:["6.022×10²⁶","3.011×10²⁶","1.204×10²⁷","5.4×10²⁵"], correct:1, topic:"Fusion"},
+            {id:32, q:"In β-decay, which is emitted along with electron to conserve energy and momentum?", options:["Positron","Antineutrino","Alpha particle","Gamma photon"], correct:1, topic:"Radioactivity"},
+            {id:33, q:"The ratio of the volume of an atom to the volume of its nucleus is approximately:", options:["10⁴","10⁸","10¹²","10¹⁵"], correct:2, topic:"Nuclear Size"},
+            {id:34, q:"When the Sun's hydrogen is exhausted, it will fuse helium into:", options:["Iron","Oxygen","Carbon","Neon"], correct:2, topic:"Fusion"},
+            {id:35, q:"The mass defect of the Carbon-12 nucleus (ignoring electrons) is approximately:", options:["0.0989 u","0.0956 u","0.1123 u","Zero"], correct:0, topic:"Mass Defect"},
+
+            {id:36, q:"What is strictly conserved in every nuclear reaction?", options:["Number of protons","Number of neutrons","Total charge and baryon number","Total rest mass"], correct:2, topic:"Nuclear Reactions"},
+            {id:37, q:"If a heavy nucleus A=240 breaks into two A=120, energy released per nucleon is:", options:["0.9 MeV","1.8 MeV","216 MeV","8.05 MeV"], correct:0, topic:"Fission"},
+            {id:38, q:"The height of the potential barrier for two deuterons is approximately:", options:["400 keV","180 keV","360 keV","900 keV"], correct:2, topic:"Fusion"},
+            {id:39, q:"Red Giant phase of the sun occurs when:", options:["Helium burning starts","Hydrogen in the core is depleted","The sun cools down","Gravity ceases"], correct:1, topic:"Fusion"},
+            {id:40, q:"Average atomic mass of Chlorine is 35.47 u. Percentage of heavier isotope (36.98 u) is:", options:["75.4%","24.6%","50%","33.3%"], correct:1, topic:"Isotopes"},
+
+            {id:41, q:"Why is it incorrect to say mass-energy interconversion only happens in nuclear reactions?", options:["Mass is always conserved","Chemical reactions also involve mass defects (but very small)","Electrons have no mass","Energy is not a form of mass"], correct:1, topic:"Mass-Energy"},
+            {id:42, q:"In the reaction e⁺ + e⁻ → γ + γ, total energy of two gamma photons is:", options:["0.511 MeV","1.022 MeV","Zero","931.5 MeV"], correct:1, topic:"Mass-Energy"},
+            {id:43, q:"In neutron-induced fission of ²³⁵U yielding ¹⁴⁰Xe and ⁹⁴Sr, how many neutrons are released?", options:["1","2","3","4"], correct:1, topic:"Fission"},
+            {id:44, q:"The radius of a nucleus is 1/10⁴ times the radius of the atom. Volume ratio is:", options:["1/10","1/100","1/1000","1/10¹²"], correct:3, topic:"Nuclear Size"},
+            {id:45, q:"The density of a neutron star is comparable to:", options:["Sun's core","Nuclear density","Density of Iron","White dwarfs"], correct:1, topic:"Nuclear Density"},
+
+            {id:46, q:"Binding energy of ₂₆⁵⁶Fe is approximately:", options:["492 MeV","528 MeV","447 MeV","8.75 MeV"], correct:0, topic:"Binding Energy"},
+            {id:47, q:"Why does E_bn stay nearly constant for middle-mass nuclei?", options:["Each nucleon interacts with limited neighbors","Nuclear forces become stronger","Surface nucleons have more energy","Protons cancel neutrons"], correct:0, topic:"Binding Energy"},
+            {id:48, q:"Energy equivalent of 0.001 u is:", options:["931.5 eV","931.5 keV","0.9315 MeV","93.15 MeV"], correct:1, topic:"Mass-Energy"},
+            {id:49, q:"Which radiation is most penetrating?", options:["α-rays","β-rays","γ-rays","Visible light"], correct:2, topic:"Radioactivity"},
+            {id:50, q:"How many nucleons are in 1 gram of any substance (approximate)?", options:["6×10²³","10²⁷","1.6×10^{-24}","3×10⁸"], correct:0, topic:"Nuclear Composition"}
+        ];
+
+        let current = 0;
+        let answers = {};
+        let marked = new Set();
+        let timeLeft = 54 * 60;
+        let timer;
+
+        function renderQuestion() {
+            const q = questions[current];
+            document.getElementById('q-no').innerHTML = `Q ${q.id} <small>/50</small>`;
+            document.getElementById('q-topic').textContent = q.topic;
+            document.getElementById('question-text').textContent = q.q;
+
+            const optsDiv = document.getElementById('options');
+            optsDiv.innerHTML = '';
+            q.options.forEach((opt, i) => {
+                const div = document.createElement('div');
+                div.className = `option ${answers[current] === i ? 'selected' : ''}`;
+                div.innerHTML = `<strong>${String.fromCharCode(65 + i)}.</strong> ${opt}`;
+                div.onclick = () => {
+                    answers[current] = i;
+                    renderQuestion();
+                    renderPalette();
+                };
+                optsDiv.appendChild(div);
+            });
+        }
+
+        function renderPalette() {
+            const pal = document.getElementById('palette');
+            pal.innerHTML = '';
+            questions.forEach((_, i) => {
+                const btn = document.createElement('div');
+                btn.className = `palette-btn ${answers[i] !== undefined ? 'answered' : ''} ${marked.has(i) ? 'review' : ''}`;
+                btn.textContent = i + 1;
+                btn.onclick = () => { current = i; renderQuestion(); };
+                pal.appendChild(btn);
+            });
+        }
+
+        function nextQuestion() { if (current < questions.length - 1) { current++; renderQuestion(); } }
+        function prevQuestion() { if (current > 0) { current--; renderQuestion(); } }
+        function markForReview() {
+            if (marked.has(current)) marked.delete(current);
+            else marked.add(current);
+            renderPalette();
+        }
+
+        function startTimer() {
+            timer = setInterval(() => {
+                timeLeft--;
+                const m = Math.floor(timeLeft / 60);
+                const s = timeLeft % 60;
+                document.getElementById('timer').textContent = `${m}:${s < 10 ? '0' : ''}${s}`;
+                if (timeLeft <= 0) submitExam();
+            }, 1000);
+        }
+
+        function startExam() {
+            document.getElementById('landing').style.display = 'none';
+            document.getElementById('exam').style.display = 'block';
+            renderQuestion();
+            renderPalette();
+            startTimer();
+        }
+
+        function submitExam() {
+            if (!confirm("Are you sure you want to submit?")) return;
+            clearInterval(timer);
+
+            let correct = 0, attempted = 0;
+            questions.forEach((q, i) => {
+                if (answers[i] !== undefined) {
+                    attempted++;
+                    if (answers[i] === q.correct) correct++;
+                }
+            });
+
+            const score = correct * 4 - (attempted - correct);
+            const percent = Math.round((score / 200) * 100);
+
+            document.getElementById('exam').style.display = 'none';
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('score-text').innerHTML = `Score: <b>${score}</b>`;
+            document.getElementById('percent-text').textContent = `${percent}%`;
+            document.getElementById('correct-count').textContent = correct;
+            document.getElementById('wrong-count').textContent = attempted - correct;
+            document.getElementById('skipped-count').textContent = questions.length - attempted;
+        }
+    </script>
+</body>
+</html>
